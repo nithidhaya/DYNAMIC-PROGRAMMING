@@ -1,0 +1,58 @@
+
+import java.util.*;
+
+class LIS {
+    public static int lengthOfLIS(int[] nums) {
+        return lengthOfLIS(nums, Integer.MIN_VALUE, 0);
+    }
+
+    public static int lengthOfLIS(int[] nums, int prev_num, int current_pos) {
+        if (current_pos == nums.length)
+            return 0;
+        int taken = 0;
+        if (nums[current_pos] > prev_num) {
+            taken = 1 + lengthOfLIS(nums, nums[current_pos], current_pos + 1);
+        }
+        int not_taken = lengthOfLIS(nums, prev_num, current_pos + 1);
+        return Math.max(taken, not_taken);
+    }
+
+    // o(n^2)
+    // maintain a lengths array with max LIS at that index
+    // inner loop with compare with the prev max LIS and update.....
+    // sequences will maintain the index of the prev latest element in that seq, if
+    // not null
+    public static List<Integer> longestIncreasingSubsequence(int[] array) {
+        Integer[] sequences = new Integer[array.length];
+        int[] lengths = new int[array.length];
+        Arrays.fill(lengths, 1); // since every sequence's max length is 1
+        int maxLengthIdx = 0; // maintains the max LIS index
+        for (int i = 0; i < array.length; i++) {
+            int currentNum = array[i];
+            for (int j = 0; j < i; j++) {
+                int prevNum = array[j];
+                if (prevNum < currentNum && lengths[j] + 1 >= lengths[i]) {
+                    lengths[i] = lengths[j] + 1;
+                    sequences[i] = j;
+                }
+            }
+            if (lengths[i] > lengths[maxLengthIdx])
+                maxLengthIdx = i;
+        }
+        return buildSequence(array, sequences, maxLengthIdx);
+    }
+
+    public static List<Integer> buildSequence(int[] array, Integer[] sequences, Integer currentIdx) {
+        List<Integer> sequence = new LinkedList<>();
+        while (currentIdx != null) {
+            sequence.add(0, array[currentIdx]);
+            currentIdx = sequences[currentIdx];
+        }
+        return sequence;
+    }
+
+    public static void main(String... args) {
+        int[] nums = { 5, 7, -24, 12, 10, 2, 3, 12, 5, 6, 35 };
+        System.out.println(longestIncreasingSubsequence(nums));
+    }
+}
